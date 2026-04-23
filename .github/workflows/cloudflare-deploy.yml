@@ -1,0 +1,25 @@
+name: Cloudflare简历自动部署
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: 拉取GitHub代码
+        uses: actions/checkout@v4
+
+      - name: 一键部署Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: resume
+          directory: ./
+          branch: main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
