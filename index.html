@@ -33,6 +33,7 @@
         html {
             scroll-behavior: smooth;
             scroll-snap-type: y proximity;
+            -webkit-scroll-snap-type: y proximity;
         }
 
         body {
@@ -41,6 +42,7 @@
             color: var(--text-primary);
             line-height: 1.6;
             overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* Scrollbar */
@@ -1216,16 +1218,23 @@
         }
 
         @media (max-width: 768px) {
+            html {
+                scroll-snap-type: none;
+                -webkit-scroll-snap-type: none;
+            }
+
+            section {
+                min-height: auto;
+                height: auto;
+                padding: 4rem 1.5rem;
+            }
+
             .nav-menu {
                 position: fixed;
                 top: 0;
                 left: 0;
-                right: 0;
-                bottom: 0;
-                width: 100vw;
-                height: 100vh;
-                min-width: 100vw;
-                min-height: 100vh;
+                width: 100%;
+                height: 100%;
                 background: #0A0A0A;
                 flex-direction: column;
                 justify-content: center;
@@ -1233,13 +1242,17 @@
                 gap: 2rem;
                 opacity: 0;
                 visibility: hidden;
-                transition: var(--transition);
+                pointer-events: none;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
                 z-index: 9999;
+                -webkit-transform: translateZ(0);
+                transform: translateZ(0);
             }
 
             .nav-menu.active {
                 opacity: 1;
                 visibility: visible;
+                pointer-events: auto;
             }
 
             .nav-menu a {
@@ -1389,7 +1402,7 @@
                     </a>
                 </div>
                 <div class="hero-image">
-                    <img src="images/profile.jpg" alt="张腾">
+                    <img src="images/profile.jpg" alt="张腾" loading="lazy" onerror="this.style.display='none'">
                 </div>
             </div>
         </div>
@@ -1671,8 +1684,8 @@
             <p class="section-subtitle">获得证书</p>
             <div class="cert-card">
                 <div class="cert-badge" id="certBadge">
-                    <img src="images/pmp.jpg" alt="PMP证书">
-                </div>
+                        <img src="images/pmp.jpg" alt="PMP证书" loading="lazy" onerror="this.style.display='none'">
+                    </div>
                 <div class="cert-info">
                     <h3>Project Management Professional (PMP) ®</h3>
                     <p class="cert-meta">颁发机构：<span class="cert-org">Project Management Institute (PMI)</span></p>
@@ -1800,10 +1813,22 @@
         const certBadge = document.getElementById('certBadge');
         const certBadgeImg = document.querySelector('#certBadge img');
 
-        // Mobile menu toggle
-        navToggle.addEventListener('click', () => {
+        // Mobile menu toggle - supports both click and touch events
+        function toggleMobileMenu() {
             navToggle.classList.toggle('active');
             navMenu.classList.toggle('active');
+            // Prevent body scroll when menu is open
+            if (navMenu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        navToggle.addEventListener('click', toggleMobileMenu);
+        navToggle.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            toggleMobileMenu();
         });
 
         // Close mobile menu on link click
@@ -1811,6 +1836,7 @@
             link.addEventListener('click', () => {
                 navToggle.classList.remove('active');
                 navMenu.classList.remove('active');
+                document.body.style.overflow = '';
                 navLinks.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
             });
